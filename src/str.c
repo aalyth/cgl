@@ -1,5 +1,5 @@
 
-#include "str.h"
+#include <cgl/string.h>
 
 #include <ctype.h>
 #include <stdarg.h>

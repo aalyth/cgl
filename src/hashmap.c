@@ -1,5 +1,5 @@
 
-#include "hashmap.h"
+#include <cgl/hashmap.h>
 
 #include <string.h>
 

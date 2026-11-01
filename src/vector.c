@@ -1,5 +1,5 @@
 
-#include "vector.h"
+#include <cgl/vector.h>
 
 #define vector_impl(T, ty)                                                                \
 	int __init_vector_##ty(struct __vector_##ty *v, struct vector_options opt)        \

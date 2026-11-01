@@ -1,5 +1,5 @@
 
-#include "list.h"
+#include <cgl/list.h>
 
 #define list_impl(T, ty)                                                                       \
 	void __init_list_##ty(struct __list_##ty *l, struct list_options opt)                  \

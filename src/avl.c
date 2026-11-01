@@ -1,5 +1,5 @@
 
-#include "avl.h"
+#include <cgl/avl.h>
 
 #include <string.h>
 

@@ -1,5 +1,5 @@
 
-#include "alloc.h"
+#include <cgl/alloc.h>
 
 #include <stdlib.h>
 
