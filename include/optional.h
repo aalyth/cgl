@@ -29,7 +29,6 @@
 
 __cgl_macro_for_each_primitive(__cgl_optional_define)
 
-/* Same size as a pointer: NULL is the empty state, so a NULL value can't be held. */
 struct __optional_v {
 	void *value;
 };

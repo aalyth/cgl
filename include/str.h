@@ -7,75 +7,79 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-/* A view of bytes owned by someone else. Not NUL-terminated. */
-struct str {
+/* Immutable view of externally owned data. Not NUL-terminated. */
+typedef struct {
 	const char *data;
 	size_t len;
-};
+} string_t;
 
-#define str_lit(s) ((struct str){ .data = (s), .len = sizeof(s) - 1 })
+#define string_lit(s) ((string_t){ .data = (s), .len = sizeof(s) - 1 })
 
-struct str str_from(const char *);
-struct str str_slice(struct str, size_t start, size_t end);
-struct str str_trim(struct str);
+string_t string_from(const char *);
+string_t string_slice(string_t, size_t start, size_t end);
+string_t string_trim(string_t);
 
-bool str_eq(struct str, struct str);
-int str_cmp(struct str, struct str);
-bool str_starts_with(struct str, struct str prefix);
-bool str_ends_with(struct str, struct str suffix);
-bool str_contains(struct str, struct str needle);
-optional(size_t) str_find(struct str, struct str needle);
+bool string_eq(string_t, string_t);
+int string_cmp(string_t, string_t);
+bool string_starts_with(string_t, string_t prefix);
+bool string_ends_with(string_t, string_t suffix);
+bool string_contains(string_t, string_t needle);
+optional(size_t) string_find(string_t, string_t needle);
 
 /*
  * Takes the text before the next sep off the front of rest. Returns false once
  * rest is used up, so an empty field between two separators still comes back.
  *
- *	struct str rest = str_lit("a,b,c"), field;
- *	while (str_split(&rest, ',', &field))
+ *	string_t rest = string_lit("a,b,c"), field;
+ *	while (string_split(&rest, ',', &field))
  *		...
  */
-bool str_split(struct str *rest, char sep, struct str *field);
+bool string_split(string_t *rest, char sep, string_t *field);
 
-/* For hashmap, hashset and avl: str_key_* for struct str keys, cstr_key_* for char *. */
-size_t str_hash(struct str);
-int str_key_cmp(const void *, const void *);
-size_t str_key_hash(const void *);
+/* hashmap/hashset utilities */
+size_t string_hash(string_t);
+int string_key_cmp(const void *, const void *);
+size_t string_key_hash(const void *);
 int cstr_key_cmp(const void *, const void *);
 size_t cstr_key_hash(const void *);
 
-struct string_options {
+struct string_builder_options {
 	size_t capacity;
 	const struct allocator *allocator;
 };
 
-/* An owned, growable buffer, always NUL-terminated once it has data. */
-struct string {
+/* Builds up text in an owned buffer, always NUL-terminated once it has data. */
+struct string_builder {
 	char *data;
 	size_t len;
 	size_t cap;
 	const struct allocator *allocator;
 };
 
-int __string_init(struct string *, struct string_options);
-int __string_append(struct string *, struct str);
+int __string_builder_init(struct string_builder *, struct string_builder_options);
+int __string_builder_append(struct string_builder *, string_t);
 
-/* Returns 0, or -1 if reserving capacity failed, leaving s empty but usable. */
-#define string_init(s, ...) __string_init(s, (struct string_options){ __VA_ARGS__ })
+/* Returns 0, or -1 if reserving capacity failed, leaving b empty but usable. */
+#define string_builder_init(b, ...) \
+	__string_builder_init(b, (struct string_builder_options){ __VA_ARGS__ })
 
-/* All of these return 0, or -1 if allocation failed, leaving s unchanged. */
-int string_reserve(struct string *, size_t cap);
-int string_push(struct string *, char);
-__attribute__((format(printf, 2, 3))) int string_appendf(struct string *, const char *fmt, ...);
+/* All of these return 0, or -1 if allocation failed, leaving b unchanged. */
+int string_builder_reserve(struct string_builder *, size_t cap);
+int string_builder_push(struct string_builder *, char);
+__attribute__((format(printf, 2, 3))) int string_builder_appendf(struct string_builder *,
+                                                                 const char *fmt, ...);
 
-/* x is a char *, or a struct str, which may be a view into s itself. */
-#define string_append(s, x)                      \
-	__string_append(s, _Generic((x),         \
-	                        struct str: (x), \
-	                        default: str_from(_Generic((x), struct str: "", default: (x)))))
+/* x is a char *, or a string_t, which may be a view into b itself. */
+#define string_builder_append(b, x)    \
+	__string_builder_append(       \
+	        b, _Generic((x),       \
+	                string_t: (x), \
+	                default: string_from(_Generic((x), string_t: "", default: (x)))))
 
-struct str string_view(const struct string *);
-const char *string_cstr(const struct string *);
-void string_clear(struct string *);
-void string_free(struct string *);
+/* A view of the current contents, invalid once the builder changes. */
+string_t string_builder_view(const struct string_builder *);
+const char *string_builder_cstr(const struct string_builder *);
+void string_builder_clear(struct string_builder *);
+void string_builder_free(struct string_builder *);
 
 #endif

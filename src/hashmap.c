@@ -142,16 +142,15 @@ int __hashmap_put(struct __hashmap *m, const void *key, const void *value)
 	return 0;
 }
 
-void *__hashmap_get(struct __hashmap *m, const void *key)
+optional(void *) __hashmap_get(struct __hashmap *m, const void *key)
 {
 	size_t slot;
 
 	if (!find(m, key, hash_key(m, key), &slot))
-		return NULL;
-	return entry_at(m, slot) + m->value_offset;
+		return __optional_none_v();
+	return __optional_some_v(entry_at(m, slot) + m->value_offset);
 }
 
-/* Shifts later entries back instead of leaving tombstones. */
 bool __hashmap_remove(struct __hashmap *m, const void *key)
 {
 	size_t mask = m->cap - 1;

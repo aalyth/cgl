@@ -22,16 +22,14 @@ static int height(const struct __avl_node *node)
 
 static void update_height(struct __avl_node *node)
 {
-	int left = height(node->left);
-	int right = height(node->right);
-
+	const int left = height(node->left);
+	const int right = height(node->right);
 	node->height = (left > right ? left : right) + 1;
 }
 
 static struct __avl_node *rotate_right(struct __avl_node *node)
 {
 	struct __avl_node *pivot = node->left;
-
 	node->left = pivot->right;
 	pivot->right = node;
 	update_height(node);
@@ -42,7 +40,6 @@ static struct __avl_node *rotate_right(struct __avl_node *node)
 static struct __avl_node *rotate_left(struct __avl_node *node)
 {
 	struct __avl_node *pivot = node->right;
-
 	node->right = pivot->left;
 	pivot->left = node;
 	update_height(node);
@@ -52,8 +49,7 @@ static struct __avl_node *rotate_left(struct __avl_node *node)
 
 static struct __avl_node *rebalance(struct __avl_node *node)
 {
-	int balance = height(node->left) - height(node->right);
-
+	const int balance = height(node->left) - height(node->right);
 	update_height(node);
 	if (balance > 1) {
 		if (height(node->left->left) < height(node->left->right))
@@ -72,7 +68,6 @@ static struct __avl_node *insert(struct __avl *t, struct __avl_node *node, const
                                  const void *value, int *status)
 {
 	int order;
-
 	if (!node) {
 		node = allocator_malloc(t->allocator,
 		                        sizeof(*node) + t->value_offset + t->value_size);
@@ -172,10 +167,7 @@ void __avl_init(struct __avl *t, size_t key_size, size_t key_align, size_t value
 int __avl_put(struct __avl *t, const void *key, const void *value)
 {
 	int status = 0;
-	struct __avl_node *root = insert(t, t->root, key, value, &status);
-
-	/* A failed insert into an empty tree returns NULL, which is the same root. */
-	t->root = root;
+	t->root = insert(t, t->root, key, value, &status);
 	return status;
 }
 
