@@ -1,6 +1,8 @@
 #ifndef __CGL_HASHSET_H
 #define __CGL_HASHSET_H
 
+#include "hashmap.h"
+
 #define hashset(T)                     \
 	union {                        \
 		struct __hashmap core; \
