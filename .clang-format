@@ -1,0 +1,2 @@
+BasedOnStyle: InheritParentConfig
+StatementMacros: [macro, __cgl_macro_for_each_primitive, __cgl_macro_for_each_type]
